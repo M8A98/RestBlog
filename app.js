@@ -1,12 +1,15 @@
-var express      = require("express");
-var app          = express();
-var bodyParser   = require("body-parser");
-var mongoose     = require("mongoose");
+var express        = require("express");
+var app            = express();
+var bodyParser     = require("body-parser");
+var mongoose       = require("mongoose");
+var methodOverride = require("method-override");
 
 mongoose.connect("mongodb://localhost:27017/restful_blog_app", {useNewUrlParser: true});
+mongoose.set("useFindAndModify", false);
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(methodOverride("_method")); //You are telling express to look for _method but it can be anything and you are also telling express to use PUT,DELETE or any other method.
 //MONGOOSE /MODEL CONFIGURATION
 var blogSchema = new mongoose.Schema({
    title:String,
@@ -65,6 +68,36 @@ app.get("/blogs/:id",function(req, res) {
        }
     });
 })
+
+//EDIT ROUTE
+
+app.get("/blogs/:id/edit",function(req, res) {
+    Blog.findById(req.params.id,function(err,foundBlog){
+        if(err){
+            res.redirect("/blogs");
+        }else{
+            res.render("edit",{blog : foundBlog});      
+        }
+    })
+})
+
+//UPDATE ROUTE
+
+app.put("/blogs/:id",function(req,res){
+   Blog.findByIdAndUpdate(req.body.id,req.body.blog,function(err,updatedBlog){
+      if(err){
+          res.redirect("/blogs");
+      } else{
+          res.redirect("/blogs/" + req.params.id);
+      }
+   });
+});
+
+//DELETE ROUTE
+
+app.delete("/blogs/:id",function(req,res){
+   res.send("You reached the destroy route"); 
+});
 
 app.get("*",function(req, res) {
     res.send("<h1>This site does not exist !</h1>")
