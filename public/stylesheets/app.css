@@ -5,3 +5,7 @@ i.icon { /* i with the class of icon*/
 .container.main{ /*Elements that have the class container and main as well.*/
     margin-top: 7em;
 }
+
+#delete{
+    display:inline;
+}

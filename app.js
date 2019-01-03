@@ -84,7 +84,7 @@ app.get("/blogs/:id/edit",function(req, res) {
 //UPDATE ROUTE
 
 app.put("/blogs/:id",function(req,res){
-   Blog.findByIdAndUpdate(req.body.id,req.body.blog,function(err,updatedBlog){
+   Blog.findByIdAndUpdate(req.params.id,req.body.blog,function(err,updatedBlog){
       if(err){
           res.redirect("/blogs");
       } else{
@@ -96,7 +96,13 @@ app.put("/blogs/:id",function(req,res){
 //DELETE ROUTE
 
 app.delete("/blogs/:id",function(req,res){
-   res.send("You reached the destroy route"); 
+   Blog.findByIdAndRemove(req.params.id,function(err){
+      if (err) {
+          res.redirect("/blogs");
+      } else{
+          res.redirect("/blogs");
+      }
+   });
 });
 
 app.get("*",function(req, res) {
