@@ -3,12 +3,14 @@ var app            = express();
 var bodyParser     = require("body-parser");
 var mongoose       = require("mongoose");
 var methodOverride = require("method-override");
+var expressSanitizer = require("express-sanitizer");
 
 mongoose.connect("mongodb://localhost:27017/restful_blog_app", {useNewUrlParser: true});
 mongoose.set("useFindAndModify", false);
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(expressSanitizer());//This code needs to be after bodyParser.
 app.use(methodOverride("_method")); //You are telling express to look for _method but it can be anything and you are also telling express to use PUT,DELETE or any other method.
 //MONGOOSE /MODEL CONFIGURATION
 var blogSchema = new mongoose.Schema({
@@ -84,6 +86,7 @@ app.get("/blogs/:id/edit",function(req, res) {
 //UPDATE ROUTE
 
 app.put("/blogs/:id",function(req,res){
+   req.body.blog.body = req.sanitize(req.body.blog.body); //This comes from new.ejs line 16
    Blog.findByIdAndUpdate(req.params.id,req.body.blog,function(err,updatedBlog){
       if(err){
           res.redirect("/blogs");
